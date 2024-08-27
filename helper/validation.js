@@ -1,0 +1,62 @@
+const { check } = require("express-validator");
+
+exports.agentssignUpValidataion = [
+  check("first_name", "First Name is required").not().isEmpty(),
+  // check('last_name','Last Name is required').not().isEmpty(),
+  check("country", "Country is required").not().isEmpty(),
+  check("state", "State is required").not().isEmpty(),
+  check("city", "City is required").not().isEmpty(),
+  check("zip", "Zip is required").not().isEmpty(),
+  check("address", "Address is required").not().isEmpty(),
+  check("phoneno", "Phone no is required").not().isEmpty(),
+  check("email", "Email is required").isEmail(),
+  check("password", "Password is required").isLength({ min: 5 }),
+];
+
+exports.agentsupdateValidataion = [
+  check("first_name", "First Name is required").not().isEmpty(),
+  // check('last_name','Last Name is required').not().isEmpty(),
+  check("country", "Country is required").not().isEmpty(),
+  check("state", "State is required").not().isEmpty(),
+  check("city", "City is required").not().isEmpty(),
+  check("zip", "Zip is required").not().isEmpty(),
+  check("address", "Address is required").not().isEmpty(),
+  check("phoneno", "Phone no is required").not().isEmpty(),
+  check("email", "Email is required").isEmail(),
+  //check('password','Password is required').isLength({ min: 5 }),
+];
+
+exports.loginUpValidataion = [
+  check("email", "Email is required")
+    .isEmail()
+    .normalizeEmail({ gmail_remove_dots: true }),
+  check("password", "Password is required").not().isEmpty(),
+];
+
+exports.blogUpValidataion = [
+  check("name", "Name is required").not().isEmpty(),
+  //check('image','Password is required').not().isEmpty(),
+];
+exports.privacyUpValidataion = [
+  check("name", "Name is required").not().isEmpty(),
+  //check('image','Password is required').not().isEmpty(),
+];
+exports.disclamerUpValidataion = [
+  check("name", "Name is required").not().isEmpty(),
+  //check('image','Password is required').not().isEmpty(),
+];
+exports.cancellationUpValidataion = [
+  check("name", "Name is required").not().isEmpty(),
+  //check('image','Password is required').not().isEmpty(),
+];
+
+exports.testimonialValidataion = [
+  check("name", "Name is required").not().isEmpty(),
+  check("description", "Description is required").not().isEmpty(),
+  check("rating", "Rating is required").not().isEmpty(),
+  check("country", "Country is required").not().isEmpty(),
+];
+
+exports.weekValidataion = [
+  check("week_name", "Week Name is required").not().isEmpty(),
+];
