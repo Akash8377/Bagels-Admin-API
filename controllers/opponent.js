@@ -3,7 +3,7 @@ require("dotenv").config();
 const conn = require("../services/db");
 
 // Table names
-const WEEK_TABLE = "week";
+const WEEK_TABLE = "opponent";
 
 exports.get = (req, res) => {
   const sqlQuery = `SELECT * FROM ${WEEK_TABLE}`;
@@ -29,11 +29,12 @@ exports.register = (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const weekName = req.body.week_name.toLowerCase();
-  const sqlCheckQuery = `SELECT * FROM ${WEEK_TABLE} WHERE LOWER(week_name) = ?`;
+  const opponentName = req.body.opponent_name.toLowerCase();
+  const sqlCheckQuery = `SELECT * FROM ${WEEK_TABLE} WHERE LOWER(opponent_name) = ?`;
 
-  conn.query(sqlCheckQuery, [weekName], (err, result) => {
+  conn.query(sqlCheckQuery, [opponentName], (err, result) => {
     if (err) {
+      console.error('SQL Error:', err); // Log the actual SQL error
       return res.status(500).send({
         msg: "Internal Server Error",
       });
@@ -41,35 +42,34 @@ exports.register = (req, res) => {
 
     if (result && result.length) {
       return res.status(409).send({
-        msg: "This Week already exists",
+        msg: "This Opponent already exists",
       });
     } else {
       const date_time = new Date();
-      const sqlQuery = `
-        INSERT INTO ${WEEK_TABLE} (week_name, created_at, updated_at)
-        VALUES (?, ?, ?, ?)
-      `;
+      const sqlQuery = `INSERT INTO ${WEEK_TABLE} (opponent_name, created_at, updated_at) VALUES (?, ?, ?)`;
       const values = [
-        req.body.week_name,
+        req.body.opponent_name,
         date_time,
-        date_time,
+        date_time
       ];
 
       conn.query(sqlQuery, values, (err, result) => {
         if (err) {
+          console.error('SQL Error:', err); // Log the actual SQL error
           return res.status(500).send({
             msg: "Internal Server Error",
           });
         } else {
           res.status(200).send({
             status: "success",
-            msg: "Week registered successfully",
+            msg: "Opponent registered successfully",
           });
         }
       });
     }
   });
 };
+
 
 exports.edit = (req, res) => {
   const sqlQuery = `SELECT * FROM ${WEEK_TABLE} WHERE id = ?`;
@@ -98,11 +98,11 @@ exports.update = (req, res) => {
   const date_time = new Date();
   const sqlQuery = `
     UPDATE ${WEEK_TABLE}
-    SET week_name = ?, updated_at = ?
+    SET opponent_name = ?, updated_at = ?
     WHERE id = ?
   `;
   const values = [
-    req.body.week_name,
+    req.body.opponent_name,
     date_time,
     req.params.id,
   ];

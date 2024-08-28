@@ -6,10 +6,14 @@ const userController = require("../controllers/user");
 const blog = require("../controllers/blog");
 const fileController = require("../controllers/file.controller");
 const week = require("../controllers/week")
+const grid = require("../controllers/grid")
+const opponent = require("../controllers/opponent")
 const {
  blogUpValidataion,
   loginUpValidataion,
-  weekValidataion
+  weekValidataion,
+  gridValidataion,
+  opponentValidation,
  
 } = require("../helper/validation");
 
@@ -54,6 +58,44 @@ router.put(
 );
 router.delete("/delete-week/:id", auth.verifyToken, week.delete);
 router.put("/status-week/:id", auth.verifyToken, week.status)
+
+//-----opponent------------
+router.post(
+  "/add-opponent",
+  opponentValidation,
+  auth.verifyToken,
+  opponent.register
+);
+
+router.get("/list-opponent", auth.verifyToken, opponent.get);
+router.get("/edit-opponent/:id", auth.verifyToken, opponent.edit);
+router.put(
+  "/update-opponent/:id",
+  opponentValidation,
+  auth.verifyToken,
+  opponent.update
+);
+router.delete("/delete-opponent/:id", auth.verifyToken, opponent.delete);
+router.put("/status-opponent/:id", auth.verifyToken, opponent.status)
+//  grid Route =================
+
+
+router.post(
+  "/add-grid",
+  gridValidataion,
+  auth.verifyToken,
+  grid.register
+);
+router.get("/list-grid", auth.verifyToken, grid.get);
+router.get("/edit-grid/:id", auth.verifyToken, grid.edit);
+router.put(
+  "/update-grid/:id",
+  gridValidataion,
+  auth.verifyToken,
+  grid.update
+);
+router.delete("/delete-grid/:id", auth.verifyToken, grid.delete);
+router.put("/status-grid/:id", auth.verifyToken, grid.status)
 
 
 
