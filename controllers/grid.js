@@ -71,61 +71,66 @@ exports.register = (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  conn.query(
-    `SELECT * FROM grid WHERE (team) = LOWER(${conn.escape(req.body.team)});`,
-    (err, result) => {
-      if (result && result.length) {
-        return res.status(409).send({
-          msg: "This Grid entry already exists",
-        });
-      } else {
-        const date_time = new Date();
-        const sqlQuery = `INSERT INTO grid (expected_value, win_percentage, major_percentage, team, future, status) VALUES (?, ?, ?, ?, ?, ?)`;
-        const values = [
-          req.body.expected_value,
-          req.body.win_percentage,
-          req.body.major_percentage,
-          req.body.team,
-          req.body.future,
-          req.body.status,
-        ];
-        conn.query(sqlQuery, values, (err, result) => {
-          if (err) {
-            return res.status(500).send({
-              msg: err,
-            });
-          } else {
-            const gridId = result.insertId;
-            const weekInfoQuery = `INSERT INTO week_info (grid_id, week_id, week_name, opponent_id, opponent_name, spread, status) VALUES ?`;
-            const weekInfoValues = req.body["week-info"].map((info) => [
-              gridId,
-              info.week_id,
-              info.week_name,
-              info.opponent_id,
-              info.opponent_name,
-              info.spread,
-              info.status,
-            ]);
 
-            conn.query(weekInfoQuery, [weekInfoValues], (err, weekInfoResult) => {
-              if (err) {
-                return res.status(500).send({
-                  msg: err,
-                });
-              } else {
-                res.status(200).send({
-                  status: "success",
-                  msg: "Grid and week info registered successfully",
-                });
-              }
-            });
-          }
-        });
-      }
+  const { expected_value, win_percentage, major_percentage, team, future, 'week-info': weekInfo } = req.body;
+
+  console.log("Request body:", req.body); // Debugging log
+
+  // Check if the grid record already exists
+  const checkGridQuery = `SELECT * FROM grid WHERE team = LOWER(${conn.escape(team)});`;
+  conn.query(checkGridQuery, (err, result) => {
+    if (err) {
+      return res.status(500).send({ msg: err });
     }
-  );
-};
 
+    if (result.length) {
+      return res.status(409).send({ msg: "This Grid already exists" });
+    } else {
+      const date_time = new Date();
+      const sqlQuery = `INSERT INTO grid (expected_value, win_percentage, major_percentage, team, future, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+      const values = [expected_value, win_percentage, major_percentage, team, future, date_time, date_time];
+
+      conn.query(sqlQuery, values, (err, result) => {
+        if (err) {
+          return res.status(500).send({ msg: err });
+        }
+
+        const gridId = result.insertId;
+
+        // Ensure week_info is defined and is an array
+        if (Array.isArray(weekInfo)) {
+          const weeksQuery = `INSERT INTO week_info (grid_id, week_id, week_name, opponent_id, opponent_name, spread, status) VALUES ?`;
+          const weeksValues = weekInfo.map((week) => [
+            gridId,
+            week.week_id,
+            week.week_name,
+            week.opponent_id,
+            week.opponent_name,
+            week.spread,
+            week.status
+          ]);
+
+          conn.query(weeksQuery, [weeksValues], (err) => {
+            if (err) {
+              return res.status(500).send({ msg: err });
+            }
+
+            res.status(200).send({
+              status: "success",
+              msg: "Grid and week info registered successfully",
+            });
+          });
+        } else {
+          // Handle case where week_info is not provided or not an array
+          res.status(400).send({
+            status: "error",
+            msg: "Invalid week_info data",
+          });
+        }
+      });
+    }
+  });
+};
 
 
 exports.edit = (req, res) => {
