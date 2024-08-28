@@ -3,55 +3,64 @@ require("dotenv").config();
 const conn = require("../services/db");
 
 exports.get = (req, res) => {
-  let query = `
-    SELECT
-      h.id,
-      h.expected_value,
-      h.win_percentage,
-      h.major_percentage,
-      h.team,
-      h.future,
-      h.week_id as weekId,
-      h.status,
-      GROUP_CONCAT(l.week_name) AS week,
-      GROUP_CONCAT(l.id) AS weekIds
-    FROM
-      grid h
-    LEFT JOIN
-      week l ON FIND_IN_SET(l.id, h.week_id)
-    GROUP BY
-      h.id, h.expected_value, h.win_percentage, h.major_percentage, h.team, h.future;
+  let sqlQuery = `
+    SELECT 
+      g.id, 
+      g.expected_value, 
+      g.win_percentage, 
+      g.major_percentage, 
+      g.team, 
+      g.future, 
+      g.status, 
+      w.id AS week_id, 
+      w.week_name, 
+      w.opponent_id, 
+      w.opponent_name, 
+      w.spread, 
+      w.status AS week_status
+    FROM grid g
+    LEFT JOIN week_info w ON g.id = w.grid_id
   `;
-  
-  conn.query(query, (error, results) => {
-    if (error) {
-      console.error(error);
+
+  conn.query(sqlQuery, (err, result) => {
+    if (err) {
       return res.status(500).send({
-        msg: "Internal Server Error",
+        msg: err,
       });
     } else {
-      const grid = results.map((row) => ({
-        id: row.id,
-        expected_value: row.expected_value,
-        win_percentage: row.win_percentage,
-        major_percentage: row.major_percentage,
-        team: row.team,
-        future: row.future,
-        status: row.status,
-        week_id: row.weekId,
-        week: row.week,
-        week_info: row.weekIds
-          ? row.weekIds.split(",").map((weekId, index) => ({
-              id: weekId,
-              name: row.week.split(",")[index],
-            }))
-          : [],
-      }));
+      // Group the results by grid
+      const groupedResult = result.reduce((acc, row) => {
+        if (!acc[row.id]) {
+          acc[row.id] = {
+            id: row.id,
+            expected_value: row.expected_value,
+            win_percentage: row.win_percentage,
+            major_percentage: row.major_percentage,
+            team: row.team,
+            future: row.future,
+            status: row.status,
+            week_info: [],
+          };
+        }
+        if (row.week_id) {
+          acc[row.id].week_info.push({
+            week_id: row.week_id,
+            week_name: row.week_name,
+            opponent_id: row.opponent_id,
+            opponent_name: row.opponent_name,
+            spread: row.spread,
+            status: row.week_status,
+          });
+        }
+        return acc;
+      }, {});
+
+      const finalResult = Object.values(groupedResult);
 
       res.status(200).send({
         status: "success",
-        length: results.length,
-        data: grid,
+        length: finalResult.length,
+        data: finalResult,
       });
     }
   });
@@ -62,70 +71,98 @@ exports.register = (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
+  conn.query(
+    `SELECT * FROM grid WHERE (team) = LOWER(${conn.escape(req.body.team)});`,
+    (err, result) => {
+      if (result && result.length) {
+        return res.status(409).send({
+          msg: "This Grid entry already exists",
+        });
+      } else {
+        const date_time = new Date();
+        const sqlQuery = `INSERT INTO grid (expected_value, win_percentage, major_percentage, team, future, status) VALUES (?, ?, ?, ?, ?, ?)`;
+        const values = [
+          req.body.expected_value,
+          req.body.win_percentage,
+          req.body.major_percentage,
+          req.body.team,
+          req.body.future,
+          req.body.status,
+        ];
+        conn.query(sqlQuery, values, (err, result) => {
+          if (err) {
+            return res.status(500).send({
+              msg: err,
+            });
+          } else {
+            const gridId = result.insertId;
+            const weekInfoQuery = `INSERT INTO week_info (grid_id, week_id, week_name, opponent_id, opponent_name, spread, status) VALUES ?`;
+            const weekInfoValues = req.body["week-info"].map((info) => [
+              gridId,
+              info.week_id,
+              info.week_name,
+              info.opponent_id,
+              info.opponent_name,
+              info.spread,
+              info.status,
+            ]);
 
-  const inputArray = req.body.week_id; // Assuming week_id is an array
-  const commaSeparatedString = inputArray.join(",");
-  const date_time = new Date();
-
-  const sqlCheckQuery = `SELECT * FROM grid WHERE LOWER(team) = LOWER(${conn.escape(req.body.team)});`;
-
-  conn.query(sqlCheckQuery, (err, result) => {
-    if (err) {
-      return res.status(500).send({
-        msg: "Internal Server Error",
-      });
+            conn.query(weekInfoQuery, [weekInfoValues], (err, weekInfoResult) => {
+              if (err) {
+                return res.status(500).send({
+                  msg: err,
+                });
+              } else {
+                res.status(200).send({
+                  status: "success",
+                  msg: "Grid and week info registered successfully",
+                });
+              }
+            });
+          }
+        });
+      }
     }
-
-    if (result && result.length) {
-      return res.status(409).send({
-        msg: "This grid item already exists",
-      });
-    } else {
-      const sqlQuery = `
-        INSERT INTO grid (expected_value, win_percentage, major_percentage, team, future, week_id, status, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `;
-      const values = [
-        req.body.expected_value,
-        req.body.win_percentage,
-        req.body.major_percentage,
-        req.body.team,
-        req.body.future,
-        commaSeparatedString,
-        req.body.status,
-        date_time,
-        date_time,
-      ];
-      
-      conn.query(sqlQuery, values, (err, result) => {
-        if (err) {
-          return res.status(500).send({
-            msg: err.message,
-          });
-        } else {
-          res.status(200).send({
-            status: "success",
-            msg: "Grid item registration successful",
-          });
-        }
-      });
-    }
-  });
+  );
 };
 
-exports.edit = (req, res) => {
-  const sqlQuery = `SELECT * FROM grid WHERE id = ?`;
 
-  conn.query(sqlQuery, [req.params.id], (err, result) => {
+
+exports.edit = (req, res) => {
+  const sqlQuery = `
+    SELECT g.*, w.id AS week_id, w.week_name, w.opponent_id, w.opponent_name, w.spread, w.status AS week_status
+    FROM grid g
+    LEFT JOIN week_info w ON g.id = w.grid_id
+    WHERE g.id = ?`;
+
+  conn.query(sqlQuery, [req.params.id], (err, results) => {
     if (err) {
       return res.status(500).send({
-        msg: err.message,
+        msg: err,
       });
     } else {
+      if (results.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          msg: "Grid not found",
+        });
+      }
+
+      const grid = {
+        ...results[0],
+        week_info: results.map((row) => ({
+          week_id: row.week_id,
+          week_name: row.week_name,
+          opponent_id: row.opponent_id,
+          opponent_name: row.opponent_name,
+          spread: row.spread,
+          status: row.week_status,
+        })),
+      };
+
       res.status(200).send({
         status: "success",
-        length: result.length,
-        data: result,
+        data: grid,
       });
     }
   });
@@ -137,74 +174,137 @@ exports.update = (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const inputArray = req.body.week_id;
-  const commaSeparatedString = inputArray.join(",");
   const date_time = new Date();
 
-  const sqlQuery = `
-    UPDATE grid 
-    SET expected_value = ?, win_percentage = ?, major_percentage = ?, team = ?, future = ?, week_id = ?, status = ?, updated_at = ? 
-    WHERE id = ?
-  `;
-  const values = [
+  // Update grid table
+  const updateGridQuery = `UPDATE grid SET expected_value = ?, win_percentage = ?, major_percentage = ?, team = ?, future = ?, status = ?, updated_at = ? WHERE id = ?`;
+  const gridValues = [
     req.body.expected_value,
     req.body.win_percentage,
     req.body.major_percentage,
     req.body.team,
     req.body.future,
-    commaSeparatedString,
     req.body.status,
     date_time,
     req.params.id,
   ];
 
-  conn.query(sqlQuery, values, (err, result) => {
-    if (err) {
-      console.error(err);
+  conn.query(updateGridQuery, gridValues, (gridErr, gridResult) => {
+    if (gridErr) {
       return res.status(500).send({
         msg: "Internal Server Error",
       });
-    } else {
-      res.status(200).send({
-        status: "success",
-        msg: "Grid item update successful",
-      });
     }
+
+    // Update or insert into week_info table
+    const updateWeekInfoQuery = `UPDATE week_info SET week_name = ?, opponent_id = ?, opponent_name = ?, spread = ?, status = ? WHERE id = ?`;
+    const insertWeekInfoQuery = `INSERT INTO week_info (grid_id, week_id, week_name, opponent_id, opponent_name, spread, status) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+    const weekInfoPromises = req.body.week_info.map((week) => {
+      return new Promise((resolve, reject) => {
+        if (week.week_id) {
+          // If the week has a week_id, update it
+          const updateWeekInfoValues = [
+            week.week_name,
+            week.opponent_id,
+            week.opponent_name,
+            week.spread,
+            week.status,
+            week.week_id,
+          ];
+          conn.query(updateWeekInfoQuery, updateWeekInfoValues, (updateErr, updateResult) => {
+            if (updateErr) {
+              reject(updateErr);
+            } else {
+              resolve(updateResult);
+            }
+          });
+        } else {
+          // If the week doesn't have a week_id, insert a new record
+          const insertWeekInfoValues = [
+            req.params.id,
+            week.week_id,
+            week.week_name,
+            week.opponent_id,
+            week.opponent_name,
+            week.spread,
+            week.status,
+          ];
+          conn.query(insertWeekInfoQuery, insertWeekInfoValues, (insertErr, insertResult) => {
+            if (insertErr) {
+              reject(insertErr);
+            } else {
+              resolve(insertResult);
+            }
+          });
+        }
+      });
+    });
+
+    Promise.all(weekInfoPromises)
+      .then(() => {
+        res.status(200).send({
+          status: "success",
+          msg: "Grid and Week Info updated successfully",
+        });
+      })
+      .catch((weekInfoErr) => {
+        console.error(weekInfoErr);
+        res.status(500).send({
+          msg: "Error updating Week Info",
+        });
+      });
   });
 };
+
 
 exports.delete = (req, res) => {
-  const sqlQuery = "DELETE FROM grid WHERE id = ?";
+  const gridId = req.params.id;
 
-  conn.query(sqlQuery, [req.params.id], (err, result) => {
-    if (err) {
+  // Delete from week_info table first
+  const deleteWeekInfoQuery = "DELETE FROM week_info WHERE grid_id = ?";
+  conn.query(deleteWeekInfoQuery, [gridId], (weekInfoErr, weekInfoResult) => {
+    if (weekInfoErr) {
       return res.status(500).send({
-        msg: err.message,
-      });
-    } else {
-      res.status(200).send({
-        status: "success",
-        msg: "Grid item deletion successful",
+        msg: weekInfoErr,
       });
     }
+
+    // Then delete from grid table
+    const deleteGridQuery = "DELETE FROM grid WHERE id = ?";
+    conn.query(deleteGridQuery, [gridId], (gridErr, gridResult) => {
+      if (gridErr) {
+        return res.status(500).send({
+          msg: gridErr,
+        });
+      }
+
+      res.status(200).send({
+        status: "success",
+        msg: "Grid and associated Week Info deleted successfully",
+      });
+    });
   });
 };
+
 
 exports.status = (req, res) => {
-  const status = req.body.status; // Should be "active" or "inactive"
+  const status = req.body.status; // This should be "active" or "inactive"
   const id = req.params.id;
-  const sqlQuery = `UPDATE grid SET status = ? WHERE id = ?`;
+  const sqlQuery = `UPDATE grid SET status = ? WHERE id = ?;`;
+  const values = [status, id];
 
-  conn.query(sqlQuery, [status, id], (err, result) => {
+  conn.query(sqlQuery, values, (err, result) => {
     if (err) {
       return res.status(500).send({
-        msg: "Internal Server Error",
+        msg: err,
       });
     } else {
       res.status(200).send({
         status: "success",
-        msg: "Grid item status update successful",
+        msg: "Status updated successfully",
       });
     }
   });
 };
+

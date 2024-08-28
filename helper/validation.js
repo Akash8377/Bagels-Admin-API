@@ -60,6 +60,7 @@ exports.testimonialValidataion = [
 exports.weekValidataion = [
   check("week_name", "Week Name is required").not().isEmpty(),
 ];
+
 exports.gridValidataion = [
   check("expected_value", "Expected Value is required").not().isEmpty(),
   check("win_percentage", "Win Percentage is required").not().isEmpty(),
@@ -67,7 +68,9 @@ exports.gridValidataion = [
   check("team", "Team Name is required").not().isEmpty(),
   check("future", "Future is required").not().isEmpty(),
 ];
+
 exports.opponentValidation = [
   check("opponent_name", "Opponent name is required").not().isEmpty(),
 ];
+
 

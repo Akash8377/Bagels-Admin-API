@@ -5,9 +5,9 @@ const commonController = require("../controllers/common");
 const userController = require("../controllers/user");
 const blog = require("../controllers/blog");
 const fileController = require("../controllers/file.controller");
-const week = require("../controllers/week")
-const grid = require("../controllers/grid")
-const opponent = require("../controllers/opponent")
+const  weekController = require("../controllers/week")
+const gridController = require("../controllers/grid")
+const opponentController = require("../controllers/opponent")
 const {
  blogUpValidataion,
   loginUpValidataion,
@@ -38,65 +38,29 @@ router.put("/update-blog/:id", auth.verifyToken, blog.updateblog);
 router.delete("/delete-blog/:id", auth.verifyToken, blog.deleteblog);
 router.put("/status-blog/:id", auth.verifyToken, blog.status);
 
+//===========week================
 
-//  Week Route =================
+router.post("/add-week", weekValidataion, auth.verifyToken, weekController.register);
+router.get("/list-week", auth.verifyToken, weekController.get);
+router.get("/edit-week/:id", auth.verifyToken, weekController.edit);
+router.put("/update-week/:id", weekValidataion, auth.verifyToken, weekController.update);
+router.delete("/delete-week/:id", auth.verifyToken, weekController.delete);
+router.put("/status-week/:id", auth.verifyToken, weekController.status);
 
+// Grid Routes
+router.post("/add-grid", gridValidataion, auth.verifyToken, gridController.register);
+router.get("/list-grid", auth.verifyToken, gridController.get);
+router.get("/edit-grid/:id", auth.verifyToken, gridController.edit);
+router.put("/update-grid/:id", gridValidataion, auth.verifyToken, gridController.update);
+router.delete("/delete-grid/:id", auth.verifyToken, gridController.delete);
+router.put("/status-grid/:id", auth.verifyToken, gridController.status);
 
-router.post(
-  "/add-week",
-  weekValidataion,
-  auth.verifyToken,
-  week.register
-);
-router.get("/list-week", auth.verifyToken, week.get);
-router.get("/edit-week/:id", auth.verifyToken, week.edit);
-router.put(
-  "/update-week/:id",
-  weekValidataion,
-  auth.verifyToken,
-  week.update
-);
-router.delete("/delete-week/:id", auth.verifyToken, week.delete);
-router.put("/status-week/:id", auth.verifyToken, week.status)
+// Opponent Routes
+router.post("/add-opponent", opponentValidation, auth.verifyToken, opponentController.register);
+router.get("/list-opponent", auth.verifyToken, opponentController.get);
+router.get("/edit-opponent/:id", auth.verifyToken, opponentController.edit);
+router.put("/update-opponent/:id", opponentValidation, auth.verifyToken, opponentController.update);
+router.delete("/delete-opponent/:id", auth.verifyToken, opponentController.delete);
+router.put("/status-opponent/:id", auth.verifyToken, opponentController.status);
 
-//-----opponent------------
-router.post(
-  "/add-opponent",
-  opponentValidation,
-  auth.verifyToken,
-  opponent.register
-);
-
-router.get("/list-opponent", auth.verifyToken, opponent.get);
-router.get("/edit-opponent/:id", auth.verifyToken, opponent.edit);
-router.put(
-  "/update-opponent/:id",
-  opponentValidation,
-  auth.verifyToken,
-  opponent.update
-);
-router.delete("/delete-opponent/:id", auth.verifyToken, opponent.delete);
-router.put("/status-opponent/:id", auth.verifyToken, opponent.status)
-//  grid Route =================
-
-
-router.post(
-  "/add-grid",
-  gridValidataion,
-  auth.verifyToken,
-  grid.register
-);
-router.get("/list-grid", auth.verifyToken, grid.get);
-router.get("/edit-grid/:id", auth.verifyToken, grid.edit);
-router.put(
-  "/update-grid/:id",
-  gridValidataion,
-  auth.verifyToken,
-  grid.update
-);
-router.delete("/delete-grid/:id", auth.verifyToken, grid.delete);
-router.put("/status-grid/:id", auth.verifyToken, grid.status)
-
-
-
-module.exports = router; // export to use in server.js
+module.exports = router;
