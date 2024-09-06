@@ -1,10 +1,11 @@
 const AppError = require("../utils/appError");
 const { validationResult } = require("express-validator");
 require("dotenv").config();
+const slugify = require("slugify");
 const conn = require("../services/db");
 
 exports.get = (req, res) => {
-  let sqlQuery = "SELECT * FROM  week";
+  let sqlQuery = "SELECT * FROM  top";
 
   conn.query(sqlQuery, (err, result) => {
     if (err) {
@@ -21,56 +22,46 @@ exports.get = (req, res) => {
   });
 };
 
-
+// add category
 exports.register = (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-
-  conn.query(
-    `SELECT * FROM week WHERE week_name = LOWER(${conn.escape(
-      req.body.week_name
-    )});`,
-    (err, result) => {
-      if (err) {
-        return res.status(500).send({
-          msg: err,
-        });
-      }
-
-      if (result && result.length) {
-        return res.status(409).send({
-          msg: "This Week already exists",
-        });
-      } else {
-        var date_time = new Date();
-        const sqlQuery = `INSERT INTO week (week_name, created_at, updated_at) VALUES (?, ?, ?)`;
-        const values = [
-          req.body.week_name,
-          date_time,
-          date_time,
-        ];
-        conn.query(sqlQuery, values, (err, result) => {
-          if (err) {
-            return res.status(500).send({
-              msg: err,
-            });
-          } else {
-            res.status(200).send({
-              status: "success",
-              msg: "Week registered successfully",
-            });
-          }
-        });
-      }
+  const title = req.body.home_team;
+  // Generate slug from the title using slugify
+  const slug = slugify(title, {
+    replacement: "-", // replace spaces with -
+    lower: true, // convert to lowercase
+    remove: /[*+~%\<>/;.(){}?,'"!:@#^|]/g, // remove special characters
+  });
+  var date_time = new Date();
+  const sqlQuery = `INSERT INTO top (home_team,away_team,home_image,away_image,winning_team,created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  const values = [
+    req.body.home_team,
+    req.body.away_team,
+    req.body.home_image,
+    req.body.away_image,
+    req.body.winning_team,
+    date_time,
+    date_time,
+  ];
+  conn.query(sqlQuery, values, (err, result) => {
+    if (err) {
+      return res.status(500).send({
+        msg: err,
+      });
+    } else {
+      res.status(200).send({
+        status: "success",
+        msg: "Top Register successful",
+      });
     }
-  );
+  });
 };
 
-
 exports.edit = (req, res) => {
-  let sqlQuery = "SELECT * FROM week WHERE id=" + req.params.id;
+  let sqlQuery = "SELECT * FROM top WHERE id=" + req.params.id;
   conn.query(sqlQuery, (err, result) => {
     if (err) {
       return res.status(500).send({
@@ -90,10 +81,24 @@ exports.update = (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  
+  const title = req.body.home_team;
+  // Generate slug from the title using slugify
+  const slug = slugify(title, {
+    replacement: "-", // replace spaces with -
+    lower: true, // convert to lowercase
+    remove: /[*+~%\<>/;.(){}?,'"!:@#^|]/g, // remove special characters
+  });
   var date_time = new Date();
-  const sqlQuery = `UPDATE week SET week_name = ?, updated_at = ? WHERE id = ?;`;
-  const values = [req.body.week_name, date_time, req.params.id];
+  const sqlQuery = `UPDATE top SET home_team = ?,away_team = ?,home_image = ?,away_image = ?,winning_team=?,updated_at=? WHERE id = ?;`;
+  const values = [
+    req.body.home_team,
+    req.body.away_team,
+    req.body.home_image,
+    req.body.away_image,
+    req.body.winning_team,
+    date_time,
+    req.params.id,
+  ];
   conn.query(sqlQuery, values, (err, result) => {
     if (err) {
       return res.status(500).send({
@@ -102,15 +107,14 @@ exports.update = (req, res) => {
     } else {
       res.status(200).send({
         status: "success",
-        msg: "Week update successful",
+        msg: "Top update successful",
       });
     }
   });
 };
 
-
 exports.delete = (req, res) => {
-  let sqlQuery = "DELETE FROM week WHERE id=" + req.params.id + "";
+  let sqlQuery = "DELETE FROM top WHERE id=" + req.params.id + "";
 
   conn.query(sqlQuery, (err, result) => {
     if (err) {
@@ -120,7 +124,7 @@ exports.delete = (req, res) => {
     } else {
       res.status(200).send({
         status: "success",
-        msg: "Weeks delete successful",
+        msg: "Top delete successful",
       });
     }
   });
@@ -129,7 +133,7 @@ exports.delete = (req, res) => {
 exports.status = (req, res) => {
   const status = req.body.status; // This should be "active" or "inactive"
   const id = req.params.id;
-  const sqlQuery = `UPDATE week SET status = ? WHERE id = ?;`;
+  const sqlQuery = `UPDATE top SET status = ? WHERE id = ?;`;
   const values = [status, id];
 
   conn.query(sqlQuery, values, (err, result) => {

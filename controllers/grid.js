@@ -5,16 +5,15 @@ const conn = require("../services/db");
 exports.get = (req, res) => {
   let sqlQuery = `
     SELECT 
-      g.id, 
+      g.id AS grid_id, 
       g.expected_value, 
       g.win_percentage, 
       g.major_percentage, 
       g.team, 
       g.future, 
-      g.status, 
+      g.status AS grid_status, 
       w.id AS week_id, 
       w.week_name, 
-      w.opponent_id, 
       w.opponent_name, 
       w.spread, 
       w.status AS week_status
@@ -30,23 +29,22 @@ exports.get = (req, res) => {
     } else {
       // Group the results by grid
       const groupedResult = result.reduce((acc, row) => {
-        if (!acc[row.id]) {
-          acc[row.id] = {
-            id: row.id,
+        if (!acc[row.grid_id]) {
+          acc[row.grid_id] = {
+            id: row.grid_id,
             expected_value: row.expected_value,
             win_percentage: row.win_percentage,
             major_percentage: row.major_percentage,
             team: row.team,
             future: row.future,
-            status: row.status,
+            status: row.grid_status,
             week_info: [],
           };
         }
-        if (row.week_id) {
-          acc[row.id].week_info.push({
-            week_id: row.week_id,
+        if (row.week_id) {  // Changed this condition
+          acc[row.grid_id].week_info.push({
+            id: row.week_id,
             week_name: row.week_name,
-            opponent_id: row.opponent_id,
             opponent_name: row.opponent_name,
             spread: row.spread,
             status: row.week_status,
@@ -66,15 +64,24 @@ exports.get = (req, res) => {
   });
 };
 
+
+
 exports.register = (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { expected_value, win_percentage, major_percentage, team, future, 'week-info': weekInfo } = req.body;
+  const { expected_value, win_percentage, major_percentage, team, future, 'week_info': weekInfo } = req.body;
 
-  console.log("Request body:", req.body); // Debugging log
+  console.log("Received week_info:", weekInfo); // Debugging log
+
+  if (!Array.isArray(weekInfo)) {
+    return res.status(400).send({
+      status: "error",
+      msg: "Invalid week_info data: Expected an array.",
+    });
+  }
 
   // Check if the grid record already exists
   const checkGridQuery = `SELECT * FROM grid WHERE team = LOWER(${conn.escape(team)});`;
@@ -99,12 +106,10 @@ exports.register = (req, res) => {
 
         // Ensure week_info is defined and is an array
         if (Array.isArray(weekInfo)) {
-          const weeksQuery = `INSERT INTO week_info (grid_id, week_id, week_name, opponent_id, opponent_name, spread, status) VALUES ?`;
+          const weeksQuery = `INSERT INTO week_info (grid_id, week_name, opponent_name, spread, status) VALUES ?`;
           const weeksValues = weekInfo.map((week) => [
             gridId,
-            week.week_id,
             week.week_name,
-            week.opponent_id,
             week.opponent_name,
             week.spread,
             week.status
@@ -135,7 +140,7 @@ exports.register = (req, res) => {
 
 exports.edit = (req, res) => {
   const sqlQuery = `
-    SELECT g.*, w.id AS week_id, w.week_name, w.opponent_id, w.opponent_name, w.spread, w.status AS week_status
+    SELECT g.*, w.week_name, w.opponent_name, w.spread, w.status AS week_status
     FROM grid g
     LEFT JOIN week_info w ON g.id = w.grid_id
     WHERE g.id = ?`;
@@ -163,9 +168,7 @@ exports.edit = (req, res) => {
       future: results[0].future,
       status: results[0].status,
       week_info: results.map(row => ({
-        week_id: row.week_id,
         week_name: row.week_name,
-        opponent_id: row.opponent_id,
         opponent_name: row.opponent_name,
         spread: row.spread,
         status: row.week_status,
@@ -187,7 +190,7 @@ exports.update = (req, res) => {
   }
 
   const date_time = new Date();
-  const { expected_value, win_percentage, major_percentage, team, future, status, 'week-info': weekInfo } = req.body;
+  const { expected_value, win_percentage, major_percentage, team, future, status, 'week_info': weekInfo } = req.body;
 
   // Update grid table
   const updateGridQuery = `UPDATE grid SET expected_value = ?, win_percentage = ?, major_percentage = ?, team = ?, future = ?, status = ?, updated_at = ? WHERE id = ?`;
@@ -218,12 +221,10 @@ exports.update = (req, res) => {
 
       // Insert new week_info records
       if (Array.isArray(weekInfo)) {
-        const insertWeekInfoQuery = `INSERT INTO week_info (grid_id, week_id, week_name, opponent_id, opponent_name, spread, status) VALUES ?`;
+        const insertWeekInfoQuery = `INSERT INTO week_info (grid_id,  week_name, opponent_name, spread, status) VALUES ?`;
         const weeksValues = weekInfo.map((week) => [
           req.params.id,
-          week.week_id,
           week.week_name,
-          week.opponent_id,
           week.opponent_name,
           week.spread,
           week.status,

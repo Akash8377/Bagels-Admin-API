@@ -8,12 +8,14 @@ const fileController = require("../controllers/file.controller");
 const  weekController = require("../controllers/week")
 const gridController = require("../controllers/grid")
 const opponentController = require("../controllers/opponent")
+const top = require("../controllers/top");
 const {
  blogUpValidataion,
   loginUpValidataion,
   weekValidataion,
   gridValidataion,
   opponentValidation,
+  topValidataion
  
 } = require("../helper/validation");
 
@@ -62,5 +64,23 @@ router.get("/edit-opponent/:id", auth.verifyToken, opponentController.edit);
 router.put("/update-opponent/:id", opponentValidation, auth.verifyToken, opponentController.update);
 router.delete("/delete-opponent/:id", auth.verifyToken, opponentController.delete);
 router.put("/status-opponent/:id", auth.verifyToken, opponentController.status);
+
+
+router.post(
+  "/add-top",
+  topValidataion,
+  auth.verifyToken,
+  top.register
+);
+router.get("/list-top", auth.verifyToken, top.get);
+router.get("/edit-top/:id", auth.verifyToken, top.edit);
+router.put(
+  "/update-top/:id",
+  topValidataion,
+  auth.verifyToken,
+  top.update
+);
+router.delete("/delete-top/:id", auth.verifyToken, top.delete);
+router.put("/status-top/:id", auth.verifyToken, top.status);
 
 module.exports = router;

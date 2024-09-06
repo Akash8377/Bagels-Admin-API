@@ -72,5 +72,9 @@ exports.gridValidataion = [
 exports.opponentValidation = [
   check("opponent_name", "Opponent name is required").not().isEmpty(),
 ];
-
+exports.topValidataion = [
+  check("home_team", "home team is required").not().isEmpty(),
+  check("away_team", "away team is required").not().isEmpty(),
+  //check('image','Image is required').not().isEmpty(),
+];
 
