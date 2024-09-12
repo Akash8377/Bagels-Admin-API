@@ -36,13 +36,15 @@ exports.register = (req, res) => {
     remove: /[*+~%\<>/;.(){}?,'"!:@#^|]/g, // remove special characters
   });
   var date_time = new Date();
-  const sqlQuery = `INSERT INTO top (home_team,away_team,home_image,away_image,winning_team,created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  const sqlQuery = `INSERT INTO top (week_id,home_team,away_team,home_image,away_image,winning_team,winning_value,created_at, updated_at) VALUES (?,?, ?, ?, ?, ?, ?,?, ?)`;
   const values = [
+    req.body.week_id,
     req.body.home_team,
     req.body.away_team,
     req.body.home_image,
     req.body.away_image,
     req.body.winning_team,
+    req.body.winning_value,
     date_time,
     date_time,
   ];
@@ -89,13 +91,15 @@ exports.update = (req, res) => {
     remove: /[*+~%\<>/;.(){}?,'"!:@#^|]/g, // remove special characters
   });
   var date_time = new Date();
-  const sqlQuery = `UPDATE top SET home_team = ?,away_team = ?,home_image = ?,away_image = ?,winning_team=?,updated_at=? WHERE id = ?;`;
+  const sqlQuery = `UPDATE top SET week_id=?,home_team = ?,away_team = ?,home_image = ?,away_image = ?,winning_team=?,winning_value=?,updated_at=? WHERE id = ?;`;
   const values = [
+    req.body.week_id,
     req.body.home_team,
     req.body.away_team,
     req.body.home_image,
     req.body.away_image,
     req.body.winning_team,
+    req.body.winning_value,
     date_time,
     req.params.id,
   ];
