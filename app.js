@@ -6,18 +6,25 @@ const AppError = require("./utils/appError");
 const errorHandler = require("./utils/errorHandler");
 const path = require("path");
 require("dotenv").config();
-const cors = require("cors"); // Import the cors middleware
+const cors = require("cors");
 const app = express();
 
+const corsOptions = {
+  origin: "*", // Adjust to your frontend URL
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 app.use(express.static(path.resolve("./public")));
 global.__basedir = __dirname;
-//upload globally
-app.use(cors());
-// Static Middleware
+
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(morgan("tiny"));
 app.use(express.urlencoded({ extended: true }));
+
 app.use("/", routes);
 
 app.all("*", (req, res, next) => {
