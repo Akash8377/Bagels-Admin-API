@@ -6,9 +6,17 @@ const AppError = require("./utils/appError");
 const errorHandler = require("./utils/errorHandler");
 const path = require("path");
 require("dotenv").config();  // Load .env variables
+const session = require("express-session");
 const cors = require("cors");
 
 const app = express();
+app.use(
+  session({
+    secret: "yourSecretKeyHere",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 const corsOptions = {
   origin: "*", // Adjust this to allow only your frontend
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
