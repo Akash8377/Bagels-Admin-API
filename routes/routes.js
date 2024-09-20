@@ -8,14 +8,26 @@ const fileController = require("../controllers/file.controller");
 const  weekController = require("../controllers/week")
 const gridController = require("../controllers/grid")
 const opponentController = require("../controllers/opponent")
+const pick = require("../controllers/wadepick");
 const top = require("../controllers/top");
+const article = require("../controllers/article");
+const gameController = require("../controllers/game");
+const live = require("../controllers/adamlive");
+const future = require("../controllers/adamfuture");
+const slip = require("../controllers/adamslip")
 const {
  blogUpValidataion,
   loginUpValidataion,
   weekValidataion,
   gridValidataion,
   opponentValidation,
-  topValidataion
+  gameValidation,
+  pickValidataion,
+  topValidataion,
+  articleValidataion,
+  liveValidataion,
+  futureValidataion,
+  slipValidataion
  
 } = require("../helper/validation");
 
@@ -65,6 +77,35 @@ router.put("/update-opponent/:id", opponentValidation, auth.verifyToken, opponen
 router.delete("/delete-opponent/:id", auth.verifyToken, opponentController.delete);
 router.put("/status-opponent/:id", auth.verifyToken, opponentController.status);
 
+// Game Routes
+router.post("/add-game", gameValidation, auth.verifyToken, gameController.register);
+router.get("/list-game", auth.verifyToken, gameController.get);
+router.get("/edit-game/:id", auth.verifyToken, gameController.edit);
+router.put("/update-game/:id", gameValidation, auth.verifyToken, gameController.update);
+router.delete("/delete-game/:id", auth.verifyToken, gameController.delete);
+router.put("/status-game/:id", auth.verifyToken, gameController.status);
+
+
+
+//picks-----------------------------
+router.post(
+  "/add-pick",
+  pickValidataion,
+  auth.verifyToken,
+  pick.register
+);
+router.get("/list-pick", auth.verifyToken, pick.get);
+router.get("/edit-pick/:id", auth.verifyToken, pick.edit);
+router.put(
+  "/update-pick/:id",
+  pickValidataion,
+  auth.verifyToken,
+  pick.update
+);
+router.delete("/delete-pick/:id", auth.verifyToken, pick.delete);
+router.put("/status-pick/:id", auth.verifyToken, pick.status);
+
+//article------------
 
 router.post(
   "/add-top",
@@ -82,5 +123,79 @@ router.put(
 );
 router.delete("/delete-top/:id", auth.verifyToken, top.delete);
 router.put("/status-top/:id", auth.verifyToken, top.status);
+
+
+//article------------------------
+router.post(
+  "/add-article",
+  articleValidataion,
+  auth.verifyToken,
+  article.register
+);
+router.get("/list-article", auth.verifyToken, article.get);
+router.get("/edit-article/:id", auth.verifyToken, article.edit);
+router.put(
+  "/update-article/:id",
+  articleValidataion,
+  auth.verifyToken,
+  article.update
+);
+router.delete("/delete-article/:id", auth.verifyToken, article.delete);
+router.put("/status-article/:id", auth.verifyToken, article.status);
+
+//live------------------------
+router.post(
+  "/add-live",
+  liveValidataion,
+  auth.verifyToken,
+  live.register
+);
+router.get("/list-live", auth.verifyToken, live.get);
+router.get("/edit-live/:id", auth.verifyToken, live.edit);
+router.put(
+  "/update-live/:id",
+  liveValidataion,
+  auth.verifyToken,
+  live.update
+);
+router.delete("/delete-live/:id", auth.verifyToken, live.delete);
+router.put("/status-live/:id", auth.verifyToken, live.status);
+
+//future------------------------
+router.post(
+  "/add-future",
+  futureValidataion,
+  auth.verifyToken,
+  future.register
+);
+router.get("/list-future", auth.verifyToken, future.get);
+router.get("/edit-future/:id", auth.verifyToken, future.edit);
+router.put(
+  "/update-future/:id",
+  futureValidataion,
+  auth.verifyToken,
+  future.update
+);
+router.delete("/delete-future/:id", auth.verifyToken, future.delete);
+router.put("/status-future/:id", auth.verifyToken, future.status);
+
+//slip------------------------
+router.post(
+  "/add-slip",
+  slipValidataion,
+  auth.verifyToken,
+  slip.register
+);
+router.get("/list-slip", auth.verifyToken, slip.get);
+router.get("/edit-slip/:id", auth.verifyToken, slip.edit);
+router.put(
+  "/update-slip/:id",
+  slipValidataion,
+  auth.verifyToken,
+  slip.update
+);
+router.delete("/delete-slip/:id", auth.verifyToken, slip.delete);
+router.put("/status-slip/:id", auth.verifyToken, slip.status);
+
 
 module.exports = router;

@@ -72,9 +72,38 @@ exports.gridValidataion = [
 exports.opponentValidation = [
   check("opponent_name", "Opponent name is required").not().isEmpty(),
 ];
+exports.gameValidation = [
+  check("game_name", "Game name is required").not().isEmpty(),
+];
 exports.topValidataion = [
   check("home_team", "home team is required").not().isEmpty(),
   check("away_team", "away team is required").not().isEmpty(),
+  //check('image','Image is required').not().isEmpty(),
+];
+exports.pickValidataion= [
+  check("home_team", "home team is required").not().isEmpty(),
+  check("away_team", "away team is required").not().isEmpty(),
+  //check('image','Image is required').not().isEmpty(),
+];
+exports.articleValidataion= [
+  check("heading", "header is required").not().isEmpty(),
+  check("paragraph", "description is required").not().isEmpty(),
+  //check('image','Image is required').not().isEmpty(),
+];
+exports.liveValidataion = [
+  check("team", "Team is required").not().isEmpty(),
+  check("player_name", "player name is required").not().isEmpty(),
+  check("spread", "player name is required").not().isEmpty(),
+  //check('image','Image is required').not().isEmpty(),
+];
+exports.futureValidataion = [
+  check("team", "Team is required").not().isEmpty(),
+  check("player_name", "player name is required").not().isEmpty(),
+  check("spread", "player name is required").not().isEmpty(),
+  //check('image','Image is required').not().isEmpty(),
+];
+exports.slipValidataion= [
+  check("image", "Image Slip is required").not().isEmpty()
   //check('image','Image is required').not().isEmpty(),
 ];
 
