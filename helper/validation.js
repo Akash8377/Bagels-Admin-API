@@ -106,4 +106,14 @@ exports.slipValidataion= [
   check("image", "Image Slip is required").not().isEmpty()
   //check('image','Image is required').not().isEmpty(),
 ];
+exports.recapValidataion= [
+  check("video", "Video Recap is required").not().isEmpty()
+  //check('image','Image is required').not().isEmpty(),
+];
+exports.betValidataion = [
+  check("team", "Team is required").not().isEmpty(),
+  check("player_name", "player name is required").not().isEmpty(),
+  check("spread", "player name is required").not().isEmpty(),
+  //check('image','Image is required').not().isEmpty(),
+];
 

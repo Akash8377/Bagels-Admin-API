@@ -12,6 +12,8 @@ const pick = require("../controllers/wadepick");
 const top = require("../controllers/top");
 const article = require("../controllers/article");
 const gameController = require("../controllers/game");
+const bet = require("../controllers/waderecord");
+const recap = require("../controllers/adamrecap")
 const live = require("../controllers/adamlive");
 const future = require("../controllers/adamfuture");
 const slip = require("../controllers/adamslip")
@@ -25,9 +27,11 @@ const {
   pickValidataion,
   topValidataion,
   articleValidataion,
+  betValidataion,
   liveValidataion,
   futureValidataion,
-  slipValidataion
+  slipValidataion,
+  recapValidataion
  
 } = require("../helper/validation");
 
@@ -196,6 +200,43 @@ router.put(
 );
 router.delete("/delete-slip/:id", auth.verifyToken, slip.delete);
 router.put("/status-slip/:id", auth.verifyToken, slip.status);
+
+//bet------------------------
+router.post(
+  "/add-bet",
+  betValidataion,
+  auth.verifyToken,
+  bet.register
+);
+router.get("/list-bet", auth.verifyToken, bet.get);
+router.get("/edit-bet/:id", auth.verifyToken, bet.edit);
+router.put(
+  "/update-bet/:id",
+  betValidataion,
+  auth.verifyToken,
+  bet.update
+);
+router.delete("/delete-bet/:id", auth.verifyToken, bet.delete);
+router.put("/status-bet/:id", auth.verifyToken, bet.status);
+
+
+//recap------------------------
+router.post(
+  "/add-recap",
+  recapValidataion,
+  auth.verifyToken,
+  recap.register
+);
+router.get("/list-recap", auth.verifyToken, recap.get);
+router.get("/edit-recap/:id", auth.verifyToken, recap.edit);
+router.put(
+  "/update-recap/:id",
+  recapValidataion,
+  auth.verifyToken,
+  recap.update
+);
+router.delete("/delete-recap/:id", auth.verifyToken, recap.delete);
+router.put("/status-recap/:id", auth.verifyToken, recap.status);
 
 
 module.exports = router;
