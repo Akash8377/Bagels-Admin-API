@@ -16,7 +16,9 @@ const bet = require("../controllers/waderecord");
 const recap = require("../controllers/adamrecap")
 const live = require("../controllers/adamlive");
 const future = require("../controllers/adamfuture");
-const slip = require("../controllers/adamslip")
+const slip = require("../controllers/adamslip");
+const userEmail = require("../controllers/userEmail");
+const totalWin = require("../controllers/totalwin");
 const {
  blogUpValidataion,
   loginUpValidataion,
@@ -40,6 +42,7 @@ router.get("/welcome", auth.verifyToken, userController.welcome);
 router.post("/logout", userController.logout);
 
 router.get("/all/user-list", userController.get_all_user);
+// router.delete("delete/user-list/:id", auth.verifyToken, userController.deleteUserData);
 
 /* files upload/download Route */
 router.post("/upload", fileController.upload);
@@ -237,6 +240,27 @@ router.put(
 );
 router.delete("/delete-recap/:id", auth.verifyToken, recap.delete);
 router.put("/status-recap/:id", auth.verifyToken, recap.status);
+
+//userEmail -
+router.get("/list-user-email", auth.verifyToken, userEmail.get);
+router.delete("/delete-user-email/:id", auth.verifyToken, userEmail.delete);
+
+
+//total win and loss-------------
+
+//recap------------------------
+router.post(
+  "/add-win",
+  auth.verifyToken,
+  totalWin.register
+);
+router.get("/list-win", auth.verifyToken, totalWin.get);
+router.get("/edit-win/:id", auth.verifyToken, totalWin.edit);
+router.put(
+  "/update-win/:id",
+  auth.verifyToken,
+  totalWin.update
+);
 
 
 module.exports = router;

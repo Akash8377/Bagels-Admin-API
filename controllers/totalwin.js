@@ -5,7 +5,7 @@ const slugify = require("slugify");
 const conn = require("../services/db");
 
 exports.get = (req, res) => {
-  let sqlQuery = "SELECT * FROM  recap";
+  let sqlQuery = "SELECT * FROM  total_win";
 
   conn.query(sqlQuery, (err, result) => {
     if (err) {
@@ -28,7 +28,7 @@ exports.register = (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  const title = req.body.video;
+  const title = req.body.total_win;
   // Generate slug from the title using slugify
   const slug = slugify(title, {
     replacement: "-", // replace spaces with -
@@ -36,10 +36,10 @@ exports.register = (req, res) => {
     remove: /[*+~%\<>/;.(){}?,'"!:@#^|]/g, // remove special characters
   });
   var date_time = new Date();
-  const sqlQuery = `INSERT INTO recap (video,image,created_at, updated_at) VALUES (?,?, ?,?)`;
+  const sqlQuery = `INSERT INTO total_win (total_win,total_loss,created_at, updated_at) VALUES (?,?, ?)`;
   const values = [
-    req.body.video,
-    req.body.image,
+    req.body.total_win,
+    req.body.total_loss,
     date_time,
     date_time,
   ];
@@ -51,14 +51,14 @@ exports.register = (req, res) => {
     } else {
       res.status(200).send({
         status: "success",
-        msg: "Adam Slip Register successful",
+        msg: "Adam total win Register successful",
       });
     }
   });
 };
 
 exports.edit = (req, res) => {
-  let sqlQuery = "SELECT * FROM recap WHERE id=" + req.params.id;
+  let sqlQuery = "SELECT * FROM total_win WHERE id=" + req.params.id;
   conn.query(sqlQuery, (err, result) => {
     if (err) {
       return res.status(500).send({
@@ -78,7 +78,7 @@ exports.update = (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  const title = req.body.video;
+  const title = req.body.total_win;
   // Generate slug from the title using slugify
   const slug = slugify(title, {
     replacement: "-", // replace spaces with -
@@ -86,10 +86,10 @@ exports.update = (req, res) => {
     remove: /[*+~%\<>/;.(){}?,'"!:@#^|]/g, // remove special characters
   });
   var date_time = new Date();
-  const sqlQuery = `UPDATE recap SET video=?,image=?,updated_at=? WHERE id = ?;`;
+  const sqlQuery = `UPDATE total_win SET total_win=?,total_loss=?,updated_at=? WHERE id = ?;`;
   const values = [
-    req.body.video,
-    req.body.image,
+    req.body.total_win,
+    req.body.total_loss,
     date_time,
     req.params.id,
   ];
@@ -101,44 +101,7 @@ exports.update = (req, res) => {
     } else {
       res.status(200).send({
         status: "success",
-        msg: "Adam Slip update successful",
-      });
-    }
-  });
-};
-
-exports.delete = (req, res) => {
-  let sqlQuery = "DELETE FROM recap WHERE id=" + req.params.id + "";
-
-  conn.query(sqlQuery, (err, result) => {
-    if (err) {
-      return res.status(500).send({
-        msg: err,
-      });
-    } else {
-      res.status(200).send({
-        status: "success",
-        msg: "Adam Slip delete successful",
-      });
-    }
-  });
-};
-
-exports.status = (req, res) => {
-  const status = req.body.status; // This should be "active" or "inactive"
-  const id = req.params.id;
-  const sqlQuery = `UPDATE recap SET status = ? WHERE id = ?;`;
-  const values = [status, id];
-
-  conn.query(sqlQuery, values, (err, result) => {
-    if (err) {
-      return res.status(500).send({
-        msg: err,
-      });
-    } else {
-      res.status(200).send({
-        status: "success",
-        msg: "Status Update successful",
+        msg: "Adam total win update successful",
       });
     }
   });
