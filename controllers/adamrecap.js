@@ -36,10 +36,11 @@ exports.register = (req, res) => {
     remove: /[*+~%\<>/;.(){}?,'"!:@#^|]/g, // remove special characters
   });
   var date_time = new Date();
-  const sqlQuery = `INSERT INTO recap (video,image,created_at, updated_at) VALUES (?,?, ?,?)`;
+  const sqlQuery = `INSERT INTO recap (video,image,title,created_at, updated_at) VALUES (?,?,?, ?,?)`;
   const values = [
     req.body.video,
     req.body.image,
+    req.body.title,
     date_time,
     date_time,
   ];
@@ -86,10 +87,11 @@ exports.update = (req, res) => {
     remove: /[*+~%\<>/;.(){}?,'"!:@#^|]/g, // remove special characters
   });
   var date_time = new Date();
-  const sqlQuery = `UPDATE recap SET video=?,image=?,updated_at=? WHERE id = ?;`;
+  const sqlQuery = `UPDATE recap SET video=?,image=?,title=?,updated_at=? WHERE id = ?;`;
   const values = [
     req.body.video,
     req.body.image,
+    req.body.title,
     date_time,
     req.params.id,
   ];
