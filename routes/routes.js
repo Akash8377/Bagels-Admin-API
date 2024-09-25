@@ -19,6 +19,9 @@ const future = require("../controllers/adamfuture");
 const slip = require("../controllers/adamslip");
 const userEmail = require("../controllers/userEmail");
 const totalWin = require("../controllers/totalwin");
+const contactUs = require("../controllers/contactUs");
+const podcast = require("../controllers/podcast");
+const { createPaymentIntent } = require("../controllers/paymentController");
 const {
  blogUpValidataion,
   loginUpValidataion,
@@ -36,6 +39,7 @@ const {
   recapValidataion
  
 } = require("../helper/validation");
+
 
 router.post("/login", loginUpValidataion, userController.getUserLogin);
 router.get("/welcome", auth.verifyToken, userController.welcome);
@@ -260,6 +264,27 @@ router.put(
   "/update-win/:id",
   auth.verifyToken,
   totalWin.update
+);
+//contact-us---------
+
+router.get("/list-contact", auth.verifyToken, contactUs.get);
+router.get("/edit-contact/:id",  contactUs.edit);
+
+router.delete("/delete-contact/:id",  contactUs.delete);
+
+
+//podcast------------------------
+router.post(
+  "/add-podcast",
+  auth.verifyToken,
+  podcast.register
+);
+router.get("/list-podcast", auth.verifyToken, podcast.get);
+router.get("/edit-podcast/:id", auth.verifyToken, podcast.edit);
+router.put(
+  "/update-podcast/:id",
+  auth.verifyToken,
+  podcast.update
 );
 
 
