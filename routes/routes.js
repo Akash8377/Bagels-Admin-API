@@ -21,6 +21,7 @@ const userEmail = require("../controllers/userEmail");
 const totalWin = require("../controllers/totalwin");
 const contactUs = require("../controllers/contactUs");
 const podcast = require("../controllers/podcast");
+const userPayments = require('../controllers/paymentDetails');
 const { createPaymentIntent } = require("../controllers/paymentController");
 const {
  blogUpValidataion,
@@ -249,6 +250,9 @@ router.put("/status-recap/:id", auth.verifyToken, recap.status);
 router.get("/list-user-email", auth.verifyToken, userEmail.get);
 router.delete("/delete-user-email/:id", auth.verifyToken, userEmail.delete);
 
+//userPayment Details -
+
+router.get("/list-payments-details", auth.verifyToken, userPayments.get)
 
 //total win and loss-------------
 

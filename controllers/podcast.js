@@ -5,7 +5,7 @@ const slugify = require("slugify");
 const conn = require("../services/db");
 
 exports.get = (req, res) => {
-  let sqlQuery = "SELECT * FROM  recap";
+  let sqlQuery = "SELECT * FROM  podcast";
 
   conn.query(sqlQuery, (err, result) => {
     if (err) {
@@ -36,7 +36,7 @@ exports.register = (req, res) => {
     remove: /[*+~%\<>/;.(){}?,'"!:@#^|]/g, // remove special characters
   });
   var date_time = new Date();
-  const sqlQuery = `INSERT INTO recap (audio,title,created_at, updated_at) VALUES (?,?, ?,?)`;
+  const sqlQuery = `INSERT INTO podcast (audio,title,created_at, updated_at) VALUES (?,?, ?,?)`;
   const values = [
     req.body.audio,
     req.body.title,
@@ -58,7 +58,7 @@ exports.register = (req, res) => {
 };
 
 exports.edit = (req, res) => {
-  let sqlQuery = "SELECT * FROM recap WHERE id=" + req.params.id;
+  let sqlQuery = "SELECT * FROM podcast WHERE id=" + req.params.id;
   conn.query(sqlQuery, (err, result) => {
     if (err) {
       return res.status(500).send({
@@ -86,7 +86,7 @@ exports.update = (req, res) => {
     remove: /[*+~%\<>/;.(){}?,'"!:@#^|]/g, // remove special characters
   });
   var date_time = new Date();
-  const sqlQuery = `UPDATE recap SET audio=?,title=?,updated_at=? WHERE id = ?;`;
+  const sqlQuery = `UPDATE podcast SET audio=?,title=?,updated_at=? WHERE id = ?;`;
   const values = [
     req.body.audio,
     req.body.title,
@@ -108,7 +108,7 @@ exports.update = (req, res) => {
 };
 
 exports.delete = (req, res) => {
-  let sqlQuery = "DELETE FROM recap WHERE id=" + req.params.id + "";
+  let sqlQuery = "DELETE FROM podcast WHERE id=" + req.params.id + "";
 
   conn.query(sqlQuery, (err, result) => {
     if (err) {
@@ -127,7 +127,7 @@ exports.delete = (req, res) => {
 exports.status = (req, res) => {
   const status = req.body.status; // This should be "active" or "inactive"
   const id = req.params.id;
-  const sqlQuery = `UPDATE recap SET status = ? WHERE id = ?;`;
+  const sqlQuery = `UPDATE podcast SET status = ? WHERE id = ?;`;
   const values = [status, id];
 
   conn.query(sqlQuery, values, (err, result) => {
