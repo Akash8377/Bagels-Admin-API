@@ -21,6 +21,7 @@ const userEmail = require("../controllers/userEmail");
 const totalWin = require("../controllers/totalwin");
 const contactUs = require("../controllers/contactUs");
 const podcast = require("../controllers/podcast");
+const promocodes = require("../controllers/promocodes")
 const userPayments = require('../controllers/paymentDetails');
 const { createPaymentIntent } = require("../controllers/paymentController");
 const {
@@ -290,6 +291,15 @@ router.put(
   auth.verifyToken,
   podcast.update
 );
+router.delete("/delete-podcast/:id", podcast.delete);
+router.put("/status-podcast/:id", auth.verifyToken, podcast.status);
+
+router.post("/add-promocode",promocodes.create);
+router.get("/list-promocode", auth.verifyToken, promocodes.get);
+router.get("/edit-promocode/:id", auth.verifyToken, promocodes.edit);
+router.put("/update-promocode/:id", auth.verifyToken, promocodes.update);
+router.delete("/delete-promocode/:id", promocodes.delete);
+router.put("/status-promocode/:id", auth.verifyToken, promocodes.status);
 
 
 module.exports = router;
