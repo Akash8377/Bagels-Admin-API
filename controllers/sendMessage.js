@@ -5,10 +5,7 @@ const conn = require("../services/db");
 const axios = require('axios');
 const twilio= require("twilio");
 
-// # TWILIO_ACCOUNT_SID="AC2884485221260b0523e9b75716fe1a85"
-// # TWILIO_AUTH_TOKEN="c6e773a78fb140b02e28a6e6b0e393cc"
-// # TWILIO_PHONE_NUMBER="+15312081307"
-// # API_URL="http://0.0.0.0:9000/user-phoneno"
+
 const twilioClient= twilio("AC2884485221260b0523e9b75716fe1a85", "c6e773a78fb140b02e28a6e6b0e393cc");
 
 exports.sendBulkSMS = async (req, res) =>{
