@@ -5,8 +5,11 @@ const conn = require("../services/db");
 const axios = require('axios');
 const twilio= require("twilio");
 
-
-const twilioClient= twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+// # TWILIO_ACCOUNT_SID="AC2884485221260b0523e9b75716fe1a85"
+// # TWILIO_AUTH_TOKEN="c6e773a78fb140b02e28a6e6b0e393cc"
+// # TWILIO_PHONE_NUMBER="+15312081307"
+// # API_URL="http://0.0.0.0:9000/user-phoneno"
+const twilioClient= twilio("AC2884485221260b0523e9b75716fe1a85", "c6e773a78fb140b02e28a6e6b0e393cc");
 
 exports.sendBulkSMS = async (req, res) =>{
     const errors = validationResult(req);
@@ -21,7 +24,7 @@ exports.sendBulkSMS = async (req, res) =>{
    
 
     try{
-        const response = await axios.get(process.env.API_URL);
+        const response = await axios.get("http://0.0.0.0:9000/user-phoneno");
         console.log("API Response:", response.data);
 
         // const mobileNumbers = response.data.data.map(row => row.mobile_number).filter(num => num);
@@ -38,7 +41,7 @@ exports.sendBulkSMS = async (req, res) =>{
         const smsPromises = mobileNumbers.map(number => {
             return twilioClient.messages.create({
                 body:message,
-                from:process.env.TWILIO_PHONE_NUMBER,
+                from:"+15312081307",
                 to:number,
             })
         })
