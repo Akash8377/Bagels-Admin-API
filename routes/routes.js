@@ -22,7 +22,7 @@ const totalWin = require("../controllers/totalwin");
 const contactUs = require("../controllers/contactUs");
 const podcast = require("../controllers/podcast");
 const promocodes = require("../controllers/promocodes")
-const sendMessage = require("../controllers/sendMessage")
+// const sendMessage = require("../controllers/sendMessage")
 const userPayments = require('../controllers/paymentDetails');
 const { createPaymentIntent } = require("../controllers/paymentController");
 const {
@@ -52,9 +52,9 @@ router.get("/all/user-list", userController.get_all_user);
 // router.delete("delete/user-list/:id", auth.verifyToken, userController.deleteUserData);
 
 //Send bulkSMS
-router.post("/send-bulksms", sendMessage.sendBulkSMS)
-router.get("/get-sms", sendMessage.fetchMessages)
-router.delete("/delete-sms/:id", sendMessage.deleteMessage)
+// router.post("/send-bulksms", sendMessage.sendBulkSMS)
+// router.get("/get-sms", sendMessage.fetchMessages)
+// router.delete("/delete-sms/:id", sendMessage.deleteMessage)
 
 /* files upload/download Route */
 router.post("/upload", fileController.upload);
