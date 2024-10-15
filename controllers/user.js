@@ -113,3 +113,30 @@ exports.get_all_user = (req, res) => {
     }
   });
 };
+exports.deleteUserById = (req, res) => {
+  const userId = req.params.id; // assuming you pass the ID as a URL parameter
+
+  if (!userId) {
+    return res.status(400).send({ msg: "User ID is required" });
+  }
+
+  const sqlQuery = `DELETE FROM users WHERE id = ?`;
+
+  conn.query(sqlQuery, [userId], (err, result) => {
+    if (err) {
+      return res.status(500).send({
+        msg: err,
+      });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).send({
+        msg: "User not found",
+      });
+    }
+
+    res.status(200).send({
+      status: "success",
+      msg: `User with ID ${userId} deleted successfully`,
+    });
+  });
+};

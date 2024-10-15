@@ -49,6 +49,7 @@ router.get("/welcome", auth.verifyToken, userController.welcome);
 router.post("/logout", userController.logout);
 
 router.get("/all/user-list", userController.get_all_user);
+router.delete("/delete-user-list/:id", userController.deleteUserById);
 // router.delete("delete/user-list/:id", auth.verifyToken, userController.deleteUserData);
 
 //Send bulkSMS
