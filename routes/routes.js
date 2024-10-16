@@ -308,5 +308,7 @@ router.put("/update-promocode/:id", auth.verifyToken, promocodes.update);
 router.delete("/delete-promocode/:id", promocodes.delete);
 router.put("/status-promocode/:id", auth.verifyToken, promocodes.status);
 
+router.get("/list-survivorpoll", surviorPool.get)
+router.put("/result-update/:selected_team/:week_id", surviorPool.updateTeamResult)
 
 module.exports = router;
