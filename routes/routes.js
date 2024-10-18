@@ -24,6 +24,7 @@ const podcast = require("../controllers/podcast");
 const promocodes = require("../controllers/promocodes")
 // const sendMessage = require("../controllers/sendMessage")
 const userPayments = require('../controllers/paymentDetails');
+const surviorPool = require("../controllers/survivorPoll")
 const { createPaymentIntent } = require("../controllers/paymentController");
 const {
  blogUpValidataion,
